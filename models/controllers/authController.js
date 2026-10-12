@@ -66,3 +66,59 @@ const sellerRegsistration = async (req, res) => {
     }
 
 }
+
+
+//VENDOR LOGIN
+const vendorLogin = async (req, res) => {
+    const getEmail = req.body.email
+    const getPassword = req.body.password
+
+    const findUser = await User.findOne({ email: getEmail })
+
+    if (findUser) {
+        res.json({
+            message: "User exists!"
+        })
+        return
+    }
+    else {
+        res.json({
+            message: "User doesnt exist. Go back to registration."
+        })
+    }
+
+    const comparePassword = await bcrypt.compare(getPassword, findUser.password)
+
+    if (comparePassword) {
+        const token = jwt.sign(
+            {
+                role: "vendor",
+                id: findUser._id,
+            }
+    process.env.JWT_SECRET,
+
+            { expiresIn: "7d" }
+
+        )
+        res.json({
+            message: "Authenticated!"
+            token=token
+        })
+    }
+
+}
+
+//SELLER LOGIN
+const sellerLogin = async (req, res) => {
+
+    const getEmail = req.body.email
+    const getPassword = req.body.password
+
+    const findUser = User.findOne({
+        email: "getEmail"
+    })
+
+    if (userExists){
+        res.
+    }
+}
