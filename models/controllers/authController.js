@@ -108,17 +108,85 @@ const vendorLogin = async (req, res) => {
 
 }
 
-//SELLER LOGIN
+// SELLER LOGIN
 const sellerLogin = async (req, res) => {
-
     const getEmail = req.body.email
     const getPassword = req.body.password
 
-    const findUser = User.findOne({
-        email: "getEmail"
+    const findUser = await User.findOne({
+        email: getEmail,
+        role: "seller"
     })
 
-    if (userExists){
-        res.
+    if (findUser) {
+        const checkPassword = await bcrypt.compare(
+            getPassword,
+            findUser.password
+        )
+
+        if (checkPassword) {
+            const token = jwt.sign(
+                {
+                    role: "seller",
+                    id: findUser._id,
+                },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: "7d"
+                }
+            )
+
+            res.json({
+                message: "Authenticated!",
+                token: token
+            })
+        }
+        else {
+            res.status(400).json({
+                message: "Password invalid!"
+            })
+        }
+    }
+    else {
+        res.status(400).json({
+            message: "User doesn't exist!"
+        })
+    }
+}
+
+
+//ADMIN LOGIN
+
+const adminLogin = async (req, res) => {
+    const getEmail = req.body.email
+    const getPassword = req.body.password
+
+    const findUser = await User.findOne({
+        email: getEmail,
+        role: "admin"
+    })
+    if (findUser) {
+        const checkPassword = await bcrypt.compare(getPassword, findUser.password)
+
+        if (checkPassword) {
+            const token = jwt.sign({
+                role: "admin",
+                id: findUser._id,
+            })
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d"
+            }
+            res.json({
+                message: "Admin logged in!",
+                token: token
+            })
+        }
+        else {
+            res.json({ message: "Wrong password!" })
+        }
+    }
+    else {
+        res.json({ message: "Invalid credentials!" })
     }
 }
